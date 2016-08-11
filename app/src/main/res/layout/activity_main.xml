@@ -134,7 +134,7 @@
             android:layout_marginTop="15dp"
             android:cursorVisible="false"
             android:ems="10"
-            android:inputType="number"
+            android:inputType="number|numberSigned"
             android:textAlignment="center"
             android:textColor="#000000"
             android:layout_alignLeft="@+id/updateText"

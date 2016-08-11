@@ -1,6 +1,7 @@
 package io.github.christiandcf.smartnap;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Random;
+
 public class MainActivity extends Activity {
 
 
@@ -16,8 +19,9 @@ public class MainActivity extends Activity {
     private Button mStarter, mGenerator, mConfirm, mButton5, mButton10, mButton15, mButton20, mButton25, mButton30;
     private EditText mAnswer;
     private CountDownTimer timer;
-    private int time, checker;
-    private double op1, op2;
+    private MediaPlayer mPlayer;
+    private int time, checker, op1, op2, operator, result;
+    private boolean running;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class MainActivity extends Activity {
         mButton5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                time = 30000;
+                time = 10000;
             }
         });
         mButton10.setOnClickListener(new View.OnClickListener() {
@@ -86,63 +90,94 @@ public class MainActivity extends Activity {
             }
         });
 
-        mStarter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checker++;
+        // creating player
+        mPlayer = MediaPlayer.create(MainActivity.this, R.raw.rickroll);
 
-                if (checker == 1) {
-                    timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
-                        public void onTick(long millisUntilFinished) {
-                            mUpdateText.setText("Napping for: " + millisUntilFinished / 1000);
-                        }
+        if (checker < 1) {
+            checker += 1;
+            mStarter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checker == 1) {
+                        timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
+                            public void onTick(long millisUntilFinished) {
+                                mUpdateText.setText("Napping for: " + millisUntilFinished / 1000);
+                                running = true;
+                            }
 
-                        public void onFinish() {
-                            mUpdateText.setText("SOLVE IT!");
-                        }
-                    }.start();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Click on Generate to solve the problem", Toast.LENGTH_SHORT).show();
+                            public void onFinish() {
+                                mUpdateText.setText("SOLVE IT!");
+                                //music
+                                mPlayer.start();
+                            }
+                        }.start();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Click on Generate to solve the problem", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
-
-            }
-        });
+            });
+        }
 
         mGenerator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                op1 = 5;
-                op2 = 5;
-                mProblem.setText(op1 + " + " + op2);
+                op1 = new Random().nextInt(10) + 1;
+                op2 = new Random().nextInt(10) + 1;
 
+                operator = new Random().nextInt(3);
+
+                if (operator == 0) {
+                    mProblem.setText(op1 + " + " + op2);
+                } else if (operator == 1) {
+                    mProblem.setText(op1 + " - " + op2);
+                } else if (operator == 2) {
+                    mProblem.setText(op1 + " * " + op2);
+                }
+//                else{
+//                    mProblem.setText(op1 + " + " + op2);
+//                }
 
 
             }
         });
 
-        mConfirm.setOnClickListener(new View.OnClickListener(){
+        mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                result = 0;
 
-                double result = op1 + op2;
+                if (operator == 0) {
+                    result = op1 + op2;
+                } else if (operator == 1) {
+                    result = op1 - op2;
+                } else if (operator == 2) {
+                    result = op1 * op2;
+                }
+
                 // Check if the answer is equal to the result
-                if (mAnswer.getText().toString().equals("")) {
-                    Toast.makeText(getApplicationContext(), "Answer the question...", Toast.LENGTH_SHORT).show();
-                } else {
-                    double answer = Double.parseDouble(mAnswer.getText().toString());
-                    if (result == answer) {
-                        checker = 0;
-                        timer.cancel();
-                        Toast.makeText(getApplicationContext(), "Well Played", Toast.LENGTH_SHORT).show();
+                if (running == true) {
+                    if (mAnswer.getText().toString().equals("")) {
+                        Toast.makeText(getApplicationContext(), "Answer the question...", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getApplicationContext(), "Keep Trying", Toast.LENGTH_SHORT).show();
+                        int answer = Integer.parseInt(mAnswer.getText().toString());
+                        if (result == answer) {
+                            checker = 0;
+                            timer.cancel();
+                            mPlayer.stop();
+                            Toast.makeText(getApplicationContext(), "Well Played", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Keep Trying", Toast.LENGTH_SHORT).show();
+                        }
                     }
+                } else {
+                    Toast.makeText(getApplicationContext(), "There is nothing to do", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        // TODO: Stop Timer, and reset the checker
+        // TODO: Check if timer is running or not....Random math generation
     }
 
 }
