@@ -12,11 +12,12 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
 
-    TextView mUpdateText, mProblem;
-    Button mStarter, mGenerator, mButton5, mButton10, mButton15, mButton20, mButton25, mButton30;
-    EditText mAnswer;
-    private int time;
-    private int checker;
+    private TextView mUpdateText, mProblem;
+    private Button mStarter, mGenerator, mConfirm, mButton5, mButton10, mButton15, mButton20, mButton25, mButton30;
+    private EditText mAnswer;
+    private CountDownTimer timer;
+    private int time, checker;
+    private double op1, op2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,31 +27,62 @@ public class MainActivity extends Activity {
 
 
         // Sets the Buttons
+        mStarter = (Button) findViewById(R.id.starter);
+        mGenerator = (Button) findViewById(R.id.generator);
+        mConfirm = (Button) findViewById(R.id.confirm);
         mButton5 = (Button) findViewById(R.id.button5);
         mButton10 = (Button) findViewById(R.id.button10);
         mButton15 = (Button) findViewById(R.id.button15);
         mButton20 = (Button) findViewById(R.id.button20);
         mButton25 = (Button) findViewById(R.id.button25);
         mButton30 = (Button) findViewById(R.id.button30);
-        mStarter = (Button) findViewById(R.id.starter);
-        mGenerator = (Button) findViewById(R.id.generator);
 
+        // Answer EditTest
         mAnswer = (EditText) findViewById(R.id.answer);
 
         // Sets the Text
         mUpdateText = (TextView) findViewById(R.id.updateText);
+        mProblem = (TextView) findViewById(R.id.problem);
 
+        // Create Timer
+        timer = null;
+
+        // Give time to the Buttons
+        //five minutes is 300000
         mButton5.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { //five minutes is 300000
+            public void onClick(View v) {
                 time = 30000;
             }
         });
-
         mButton10.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                time = 6000000;
+                time = 600000;
+            }
+        });
+        mButton15.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                time = 900000;
+            }
+        });
+        mButton20.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                time = 1200000;
+            }
+        });
+        mButton25.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                time = 1500000;
+            }
+        });
+        mButton30.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                time = 1800000;
             }
         });
 
@@ -60,15 +92,13 @@ public class MainActivity extends Activity {
                 checker++;
 
                 if (checker == 1) {
-                    CountDownTimer timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
+                    timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
                         public void onTick(long millisUntilFinished) {
-
                             mUpdateText.setText("Napping for: " + millisUntilFinished / 1000);
                         }
 
                         public void onFinish() {
                             mUpdateText.setText("SOLVE IT!");
-                            checker = 0;
                         }
                     }.start();
                 } else {
@@ -81,24 +111,38 @@ public class MainActivity extends Activity {
         mGenerator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(), "GET REKT!!!!", Toast.LENGTH_SHORT).show();
+                op1 = 5;
+                op2 = 5;
+                mProblem.setText(op1 + " + " + op2);
 
-//                int op1 = 5;
-//                int op2 = 5;
-//                int result = op1 + op2;
-//                Double answer = Double.parseDouble(mAnswer.getText().toString());
-//                mProblem.setText(op1 + " + " + op2);
-//
-//                if (result == answer){
-//                    Toast.makeText(getApplicationContext(), "GG, WP", Toast.LENGTH_SHORT).show();
-//                }else{
-//                    Toast.makeText(getApplicationContext(), "GET REKT!!!!", Toast.LENGTH_SHORT).show();
-//                }
+
 
             }
         });
 
+        mConfirm.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
 
+
+                double result = op1 + op2;
+                // Check if the answer is equal to the result
+                if (mAnswer.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "Answer the question...", Toast.LENGTH_SHORT).show();
+                } else {
+                    double answer = Double.parseDouble(mAnswer.getText().toString());
+                    if (result == answer) {
+                        checker = 0;
+                        timer.cancel();
+                        Toast.makeText(getApplicationContext(), "Well Played", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Keep Trying", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        // TODO: Stop Timer, and reset the checker
     }
 
 }
