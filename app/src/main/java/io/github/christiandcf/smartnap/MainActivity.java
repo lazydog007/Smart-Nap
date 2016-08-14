@@ -97,22 +97,22 @@ public class MainActivity extends Activity {
             checker += 1;
             mStarter.setOnClickListener(new View.OnClickListener() {
                 @Override
+
+                public void onFinish() {
+                    mUpdateText.setText("SOLVE IT!");
+                    //music
+                    mPlayer.start();
+                }
+            }.start();
+        } else {
+            Toast.makeText(getApplicationContext(), "Click on Generate to solve the pr
                 public void onClick(View v) {
                     if (checker == 1) {
                         timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
                             public void onTick(long millisUntilFinished) {
                                 mUpdateText.setText("Napping for: " + millisUntilFinished / 1000);
                                 running = true;
-                            }
-
-                            public void onFinish() {
-                                mUpdateText.setText("SOLVE IT!");
-                                //music
-                                mPlayer.start();
-                            }
-                        }.start();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Click on Generate to solve the problem", Toast.LENGTH_SHORT).show();
+                            }oblem", Toast.LENGTH_SHORT).show();
                     }
 
                 }
