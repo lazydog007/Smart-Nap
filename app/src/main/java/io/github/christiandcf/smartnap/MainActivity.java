@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity {
 
@@ -20,14 +21,13 @@ public class MainActivity extends Activity {
     private EditText mAnswer;
     private CountDownTimer timer;
     private MediaPlayer mPlayer;
-    private int time, checker, pressed, op1, op2, operator, result;
-    private boolean running;
+    private int time, op1, op2, operator, result;
+    private static final String FORMAT = "%02d:%02d";
+
+    private boolean running, pressed;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-//
-//        pressed = false;
-//        running = false;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -60,64 +60,66 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 time = 10000;
-                pressed = 1;
+                pressed = true;
             }
         });
         mButton10.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 time = 600000;
-                pressed = 1;
+                pressed = true;
             }
         });
         mButton15.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 time = 900000;
-                pressed = 1;
+                pressed = true;
             }
         });
         mButton20.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 time = 1200000;
-                pressed = 1;
+                pressed = true;
             }
         });
         mButton25.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 time = 1500000;
-                pressed = 1;
+                pressed = true;
             }
         });
         mButton30.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 time = 1800000;
-                pressed = 1;
+                pressed = true;
             }
         });
 
         // creating player
-        mPlayer = MediaPlayer.create(MainActivity.this, R.raw.rickroll);
 
 
         mStarter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checker += 1;
-                String press = "checker: " + checker +"pressed: "+pressed;
-                Toast.makeText(getApplicationContext(), press, Toast.LENGTH_SHORT).show();
-                if (checker == 1 && pressed == 1) {
+                mPlayer = MediaPlayer.create(MainActivity.this, R.raw.rickroll);
+                mPlayer.setLooping(true);
+                if (pressed) {
                     timer = new CountDownTimer(time, 1000) { // adjust the milli seconds here
                         public void onTick(long millisUntilFinished) {
-                            mUpdateText.setText("Napping for: " + millisUntilFinished / 1000);
-                            running = true;
+                            mUpdateText.setText("Napping for: "+String.format(FORMAT,
+                                    TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(
+                                            TimeUnit.MILLISECONDS.toHours(millisUntilFinished)),
+                                    TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(
+                                            TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
                         }
 
                         public void onFinish() {
                             mUpdateText.setText("SOLVE IT!");
+                            running = true;
                             //music
                             mPlayer.start();
                         }
@@ -132,23 +134,20 @@ public class MainActivity extends Activity {
         mGenerator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                op1 = new Random().nextInt(10) + 1;
-                op2 = new Random().nextInt(10) + 1;
+                if (running) {
+                    op1 = new Random().nextInt(100) + 1;
+                    op2 = new Random().nextInt(100) + 1;
 
-                operator = new Random().nextInt(3);
+                    operator = new Random().nextInt(3);
 
-                if (operator == 0) {
-                    mProblem.setText(op1 + " + " + op2);
-                } else if (operator == 1) {
-                    mProblem.setText(op1 + " - " + op2);
-                } else if (operator == 2) {
-                    mProblem.setText(op1 + " * " + op2);
+                    if (operator == 0) {
+                        mProblem.setText(op1 + " + " + op2);
+                    } else if (operator == 1) {
+                        mProblem.setText(op1 + " - " + op2);
+                    } else if (operator == 2) {
+                        mProblem.setText(op1 + " * " + op2);
+                    }
                 }
-//                else{
-//                    mProblem.setText(op1 + " + " + op2);
-//                }
-
-
             }
         });
 
@@ -167,29 +166,26 @@ public class MainActivity extends Activity {
                 }
 
                 // Check if the answer is equal to the result
-                if (running == true) {
+                if (running) {
                     if (mAnswer.getText().toString().equals("")) {
-                        Toast.makeText(getApplicationContext(), "Answer the question...", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplicationContext(), "Answer the question...", Toast.LENGTH_SHORT).show();
                     } else {
                         int answer = Integer.parseInt(mAnswer.getText().toString());
                         if (result == answer) {
-                            checker = 0;
-                            pressed = 0;
+                            pressed = false;
+                            running = false;
                             timer.cancel();
                             mPlayer.stop();
                             mStarter.setVisibility(View.VISIBLE);
+                            mProblem.setText("Problem");
                             Toast.makeText(getApplicationContext(), "Well Played", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "Keep Trying", Toast.LENGTH_SHORT).show();
                         }
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(), "There is nothing to do", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-        // TODO: Check if timer is running or not....Random math generation
     }
 
 }
