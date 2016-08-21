@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
         mButton5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                time = 10000;
+                time = 300000;
                 pressed = true;
             }
         });
